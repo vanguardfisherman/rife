@@ -3,11 +3,8 @@ import {
   Alert,
   AppState,
   FlatList,
-  PanResponder,
-  Platform,
   SafeAreaView,
   ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -30,7 +27,6 @@ import { pickAndReadBackup, shareBackup, writeBackupFile } from './src/services/
 import { DashboardMetrics, NumberEntry, Raffle } from './src/types/models';
 
 type Screen = 'dashboard' | 'create' | 'sell' | 'numbers' | 'backup';
-const orderedScreens: Screen[] = ['dashboard', 'create', 'sell', 'numbers', 'backup'];
 
 const initialMetrics: DashboardMetrics = {
   total: 0,
@@ -196,47 +192,8 @@ export default function App(): JSX.Element {
     [screen]
   );
 
-  const goToRelativeScreen = useCallback(
-    (offset: -1 | 1) => {
-      const currentIndex = orderedScreens.indexOf(screen);
-      const nextIndex = currentIndex + offset;
-      if (nextIndex < 0 || nextIndex >= orderedScreens.length) {
-        return;
-      }
-      setScreen(orderedScreens[nextIndex]);
-    },
-    [screen]
-  );
-
-  const swipeResponder = useMemo(
-    () =>
-      PanResponder.create({
-        onMoveShouldSetPanResponder: (_, gestureState) => {
-          const horizontal = Math.abs(gestureState.dx) > Math.abs(gestureState.dy);
-          return horizontal && Math.abs(gestureState.dx) > 18;
-        },
-        onPanResponderRelease: (_, gestureState) => {
-          if (gestureState.dx <= -40) {
-            goToRelativeScreen(1);
-            return;
-          }
-
-          if (gestureState.dx >= 40) {
-            goToRelativeScreen(-1);
-          }
-        },
-      }),
-    [goToRelativeScreen]
-  );
-
   return (
-    <SafeAreaView
-      style={[
-        styles.container,
-        Platform.OS === 'android' ? { paddingTop: (StatusBar.currentHeight ?? 0) + 6 } : undefined,
-      ]}
-      {...swipeResponder.panHandlers}
-    >
+    <SafeAreaView style={styles.container}>
       {topMenu}
       <ScrollView contentContainerStyle={styles.content}>
         {screen === 'dashboard' && (
@@ -356,14 +313,13 @@ const styles = StyleSheet.create({
   menu: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    padding: 8,
     backgroundColor: '#0f172a',
     gap: 8,
   },
   menuButton: {
-    paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
     borderRadius: 8,
     backgroundColor: '#1e293b',
   },
