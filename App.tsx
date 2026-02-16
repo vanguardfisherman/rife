@@ -3,8 +3,10 @@ import {
   Alert,
   AppState,
   FlatList,
+  Platform,
   SafeAreaView,
   ScrollView,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -175,7 +177,8 @@ export default function App(): JSX.Element {
 
   const topMenu = useMemo(
     () => (
-      <View style={styles.menu}>
+      <View style={styles.menuContainer}>
+        <View style={styles.menu}>
         {[
           ['dashboard', 'Inicio'],
           ['create', 'Rifa'],
@@ -183,10 +186,16 @@ export default function App(): JSX.Element {
           ['numbers', 'Números'],
           ['backup', 'Backup'],
         ].map(([key, label]) => (
-          <TouchableOpacity key={key} onPress={() => setScreen(key as Screen)} style={styles.menuButton}>
+          <TouchableOpacity
+            key={key}
+            onPress={() => setScreen(key as Screen)}
+            style={styles.menuButton}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
             <Text style={[styles.menuLabel, screen === key ? styles.menuLabelActive : undefined]}>{label}</Text>
           </TouchableOpacity>
         ))}
+        </View>
       </View>
     ),
     [screen]
@@ -195,7 +204,7 @@ export default function App(): JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       {topMenu}
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView key={screen} contentContainerStyle={styles.content}>
         {screen === 'dashboard' && (
           <View>
             <Text style={styles.title}>{raffle?.name ?? 'Sin rifa activa'}</Text>
@@ -310,22 +319,27 @@ const styles = StyleSheet.create({
     paddingBottom: 32,
     gap: 16,
   },
+  menuContainer: {
+    backgroundColor: '#0f172a',
+    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight ?? 0 : 0,
+  },
   menu: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     padding: 8,
-    backgroundColor: '#0f172a',
     gap: 8,
   },
   menuButton: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    minHeight: 40,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
     borderRadius: 8,
     backgroundColor: '#1e293b',
+    justifyContent: 'center',
   },
   menuLabel: {
     color: '#cbd5e1',
-    fontSize: 12,
+    fontSize: 14,
   },
   menuLabelActive: {
     color: '#ffffff',
